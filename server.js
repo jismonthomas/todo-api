@@ -8,15 +8,36 @@ var PORT = process.env.PORT || 3000;
 var todos = [];
 var todoNextId = 1;
 
-app.set('view engine', 'hbs');
-app.use(express.static(__dirname+'/public'));
+hbs.registerPartials(__dirname + '/views/partials')//partial, for reusing in templates
+
+app.set('view engine', 'hbs'); //handlebar for templating
+
 app.use(bodyParser.json());
+
+app.use(function (req, res){
+  res.render('maintenance.hbs');
+});
+
+app.use(express.static(__dirname+'/public'));
+
+app.use(function(req, res, next){
+  var now = new Date().toString();
+  console.log(req.method + "-"+ req.url);
+  next();
+});
+
+hbs.registerHelper('getCurrentYear', function(){ // helper for getting date in every template
+  return new Date().getFullYear();
+});
+
+hbs.registerHelper('screamIt', function(text) {
+  return text.toUpperCase();
+});
 
 app.get('/',function(req, res){
   res.render('home.hbs',{
     pageTitle: "Home Page",
-    welcomeMessage: "Welcome to the website",
-    currentYear: new Date().getFullYear()
+    welcomeMessage: "Welcome to the website"
   });
 });
 
@@ -69,8 +90,7 @@ app.post('/todos',function(req, res) {
 
 app.get('/about', function(req, res) {
   res.render('about.hbs', {
-    pageTitle: "About Page",
-    currentYear: new Date().getFullYear()
+    pageTitle: "About Page"
   });
 });
 app.listen(PORT, function() {
